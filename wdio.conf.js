@@ -329,7 +329,7 @@ export const config = {
                     return reject(reportError);
                 }
 
-                console.log('Allure report successfully generated');
+                console.log('Allure report successfully generated'); //ok
                 resolve();
             });
         });
