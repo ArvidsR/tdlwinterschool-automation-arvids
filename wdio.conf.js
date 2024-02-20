@@ -1,4 +1,4 @@
-import allure from 'allure-commandline';
+import { browser, $ } from "@wdio/globals"; 
 
 export const config = {
     //
@@ -53,9 +53,6 @@ export const config = {
     //
     capabilities: [{
         browserName: 'chrome',
-        'wdio:chromedriverOptions': {
-            binary: 'C:\\Users\\User\\Documents\\chromedriver\\chromedriver.exe' 
-        }
     }],
 
     //
@@ -89,7 +86,7 @@ export const config = {
     // with `/`, the base url gets prepended, not including the path portion of your baseUrl.
     // If your `url` parameter starts without a scheme or `/` (like `some/path`), the base url
     // gets prepended directly.
-    // baseUrl: 'http://localhost:8080',
+    baseUrl: 'http://localhost',
     //
     // Default timeout for all waitFor* commands.
     waitforTimeout: 10000,
@@ -128,12 +125,17 @@ export const config = {
     // Test reporter for stdout.
     // The only one supported by default is 'dot'
     // see also: https://webdriver.io/docs/dot-reporter
-    reporters: ['spec',['allure', {outputDir: 'allure-results'}]],
+    reporters: ['spec',
+        ['allure', {
+            outputDir: 'allure-results',
+            useCucumberStepReporter: true
+        }]
+    ],
 
     // If you are using Cucumber you need to specify the location of your step definitions.
     cucumberOpts: {
         // <string[]> (file/dir) require files before executing features
-        require: ['./features/step-definitions/steps.js'],
+        require: ['./features/step-definitions/*.js'],
         // <boolean> show full backtrace for errors
         backtrace: false,
         // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
@@ -142,8 +144,6 @@ export const config = {
         dryRun: false,
         // <boolean> abort the run on first failure
         failFast: false,
-        // <string[]> Only execute the scenarios with name matching the expression (repeatable).
-        name: [],
         // <boolean> hide step definition snippets for pending steps
         snippets: true,
         // <boolean> hide source uris
@@ -157,7 +157,6 @@ export const config = {
         // <boolean> Enable this config to treat undefined definitions as warnings.
         ignoreUndefinedDefinitions: false
     },
-
 
     //
     // =====
@@ -257,8 +256,11 @@ export const config = {
      * @param {number}             result.duration  duration of scenario in milliseconds
      * @param {object}             context          Cucumber World object
      */
-    // afterStep: function (step, scenario, result, context) {
-    // },
+    afterStep: async function (step, scenario, result, context) {
+        if (result.error) {
+            await browser.takeScreenshot();
+        }
+    },
     /**
      *
      * Runs after a Cucumber Scenario.
@@ -314,26 +316,8 @@ export const config = {
      * @param {Array.<Object>} capabilities list of capabilities details
      * @param {<Object>} results object containing test results
      */
-    onComplete: function(exitCode, config, capabilities, results) {
-        const reportError = new Error('Could not generate Allure report');
-        const generation = allure(['generate', 'allure-results', '--clean']);
-        return new Promise((resolve, reject) => {
-            const generationTimeout = setTimeout(
-                () => reject(reportError),
-                5000);
-
-            generation.on('exit', function(exitCode) {
-                clearTimeout(generationTimeout);
-
-                if (exitCode !== 0) {
-                    return reject(reportError);
-                }
-
-                console.log('Allure report successfully generated'); //ok
-                resolve();
-            });
-        });
-    },
+    // onComplete: function(exitCode, config, capabilities, results) {
+    // },
     /**
     * Gets executed when a refresh happens.
     * @param {string} oldSessionId session ID of the old session
@@ -353,4 +337,4 @@ export const config = {
     */
     // afterAssertion: function(params) {
     // }
-}
+}   

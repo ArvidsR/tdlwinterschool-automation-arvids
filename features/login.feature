@@ -1,12 +1,19 @@
-Feature: The Internet Guinea Pig Website
+Feature: Login
 
-  Scenario Outline: As a user, I can log into the secure area
+  Scenario Outline: Log in user username and password
+    Given I am on login page
+    When I enter <username> username
+    And I enter <password> password
+    And I press on Login button
+    Then I see a message <message>
+    And I <visibility> see the Logout button
 
-    Given I am on the login page
-    When I login with <username> and <password>
-    Then I should see a flash message saying <message>
+    @positive
+    Examples: 
+      | username   | password               | message                          | visibility |
+      | "tomsmith" | "SuperSecretPassword!" | "You logged into a secure area!" | do         |
 
-    Examples:
-      | username | password             | message                        |
-      | tomsmith | SuperSecretPassword! | You logged into a secure area! |
-      | foobar   | barfoo               | Your username is invalid!      |
+    @negative
+    Examples: 
+      | username  | password       | message                     | visibility |
+      | "sdfsadg" | "arhsrtnsrtns" | "Your username is invalid!" | don't      |
